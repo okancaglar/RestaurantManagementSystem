@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.lab.crmanagement.R;
+import com.lab.crmanagement.navigationmenu.ongoingorders.OngoingOrdersFragment;
 import com.lab.crmanagement.navigationmenu.tables.TablesFragment;
 
 /**
@@ -73,12 +74,26 @@ public class NavigatorFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Button tablesButton = view.findViewById(R.id.tablesButton);
+        Button ongoingOrders = view.findViewById(R.id.ongoingOrdersButton);
+
         tablesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .setReorderingAllowed(true)
                         .replace(R.id.navigatorFragment, TablesFragment.class, null)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+
+        ongoingOrders.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .setReorderingAllowed(true)
+                        .replace(R.id.navigatorFragment, OngoingOrdersFragment.class, null)
                         .addToBackStack(null)
                         .commit();
             }
