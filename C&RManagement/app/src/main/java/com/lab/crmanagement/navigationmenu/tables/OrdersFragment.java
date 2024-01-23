@@ -7,44 +7,42 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.lab.crmanagement.R;
-import com.lab.crmanagement.backend.data.table.Table;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link TablesFragment#newInstance} factory method to
+ * Use the {@link OrdersFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TablesFragment extends Fragment implements TablesAdapter.TablesFragmentListener{
+public class OrdersFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String TABLE_LIST_PARAM = "table_list";
-
-    // TODO: Rename and change types of parameters
-    private List<Table> tables = new ArrayList<>();
+    private static final String ITEM_LIST_ARG = "item_list";
 
 
-    public TablesFragment() {
+    private ArrayList<String> itemNames;
+
+
+
+    public OrdersFragment() {
         // Required empty public constructor
     }
 
     // TODO: Rename and change types and number of parameters
-    public static TablesFragment newInstance(List<Table> tablesParam) {
-        TablesFragment fragment = new TablesFragment();
+    public static OrdersFragment newInstance(ArrayList<String> itemNames) {
+        OrdersFragment fragment = new OrdersFragment();
         Bundle args = new Bundle();
-        args.putSerializable(TABLE_LIST_PARAM, (Serializable) tablesParam);
+        args.putSerializable(ITEM_LIST_ARG, itemNames);
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,10 +51,8 @@ public class TablesFragment extends Fragment implements TablesAdapter.TablesFrag
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            tables = (List<Table>) getArguments().getSerializable(TABLE_LIST_PARAM);
+            itemNames = (ArrayList<String>) getArguments().getSerializable(ITEM_LIST_ARG);
         }
-
-        //todo get Data From model
     }
 
     @Override
@@ -64,14 +60,14 @@ public class TablesFragment extends Fragment implements TablesAdapter.TablesFrag
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        View view = inflater.inflate(R.layout.fragment_tables, container, false);
+        View view = inflater.inflate(R.layout.fragment_orders, container, false);
 
         if (view instanceof RecyclerView)
         {
             Context context = getContext();
             RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.setLayoutManager(new GridLayoutManager(context, 3));
-            recyclerView.setAdapter(new TablesAdapter(tables, this));
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            recyclerView.setAdapter(new OrderAdapter(itemNames));
         }
         return view;
     }
@@ -81,17 +77,5 @@ public class TablesFragment extends Fragment implements TablesAdapter.TablesFrag
         super.onViewCreated(view, savedInstanceState);
 
 
-
-    }
-
-    @Override
-    public void onButtonClicked(int position, int tableId) {
-        TableFragment tableFragment = TableFragment.newInstance(tableId);
-        getActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .replace(R.id.navigatorFragment, tableFragment, null)
-                .addToBackStack(null)
-                .commit();
     }
 }

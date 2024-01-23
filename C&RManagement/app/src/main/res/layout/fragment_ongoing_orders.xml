@@ -22,16 +22,16 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerviewongoingorders"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:backgroundTint="@color/lightgray"
         app:layout_constraintTop_toBottomOf="@id/frame_ongoingorders" />
 
 
     <Button
-        android:id="@+id/ongoingOrderSendButton"
+        android:id="@+id/ongoingOrderDoneButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="SEND"
+        android:text="Done"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

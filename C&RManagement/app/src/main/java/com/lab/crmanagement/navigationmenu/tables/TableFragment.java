@@ -6,21 +6,29 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.lab.crmanagement.R;
+import com.lab.crmanagement.backend.client.ClientSingletonService;
+import com.lab.crmanagement.backend.data.client.ClientModel;
+import com.lab.crmanagement.backend.data.client.ClientModelSingletonService;
+import com.lab.crmanagement.backend.data.menu.MenuItem;
 import com.lab.crmanagement.backend.data.table.Table;
 import com.lab.crmanagement.navigationmenu.itemmenu.MenuFragment;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link TableFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TableFragment extends Fragment {
+public class TableFragment extends Fragment implements TableView{
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -29,6 +37,18 @@ public class TableFragment extends Fragment {
     private int tableId;
 
     private Table table;
+    private TablePresenter presenter;
+
+    private TextView addOrder;
+    private TextView totalCost;
+    private TextView tableNo;
+    private TextView tableStatus;
+    private TextView orders;
+
+    private Button settleTheBill;
+
+
+
 
 
     public TableFragment() {
@@ -49,8 +69,9 @@ public class TableFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             tableId = getArguments().getInt(ARG_TABLE_ID);
-            //todo get table data by using table id
+            table = ClientModelSingletonService.getClientModelInstance().getTable(tableId);
         }
+        presenter = new TablePresenter(this);
     }
 
     @Override
@@ -63,16 +84,76 @@ public class TableFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        TextView addOrder = view.findViewById(R.id.addorder);
-        addOrder.setOnClickListener(new View.OnClickListener() {
+        addOrder = view.findViewById(R.id.addorder);
+        totalCost = view.findViewById(R.id.totalCostTxt);
+        tableNo = view.findViewById(R.id.tableno);
+        tableStatus = view.findViewById(R.id.status);
+        orders = view.findViewById(R.id.orders);
+        settleTheBill = view.findViewById(R.id.settle);
+
+        orders.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
+
+                OrdersFragment ordersFragment = OrdersFragment.newInstance(getOrderItemNames());
+
+                getActivity().getSupportFragmentManager().beginTransaction()
                         .setReorderingAllowed(true)
-                        .replace(R.id.navigatorFragment, MenuFragment.class, null)
+                        .replace(R.id.navigatorFragment, ordersFragment, null)
+                        .addToBackStack(null)
                         .commit();
             }
         });
+
+        totalCost.setText("Total Cost: " + table.getTotalCost());
+        tableNo.setText("Table No: " + table.getId());
+        tableStatus.setText("Status: " + table.getStatus());
+
+
+        addOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                MenuFragment menuFragment = MenuFragment.newInstance(tableId);
+
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .setReorderingAllowed(true)
+                        .replace(R.id.navigatorFragment, menuFragment, null)
+                        .commit();
+            }
+        });
+
+        settleTheBill.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+    }
+
+    @Override
+    public void updateUi() {
+
+        table = ClientModelSingletonService.getClientModelInstance().getTable(tableId);
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                totalCost.setText("Total Cost: " + table.getTotalCost());
+                tableStatus.setText("Status: " + table.getStatus());
+
+            }
+        });
+    }
+
+    public ArrayList<String> getOrderItemNames()
+    {
+        ArrayList<String> itemNames = new ArrayList<>();
+        ArrayList<MenuItem> items = table.getOrders();
+
+        for(MenuItem item: items)
+            itemNames.add(item.getName());
+        return itemNames;
     }
 }

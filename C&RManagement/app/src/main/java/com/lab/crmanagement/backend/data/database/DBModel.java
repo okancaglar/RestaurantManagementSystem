@@ -19,6 +19,7 @@ MenuModelOperations{
         this.employees = employees;
         this.menu = menu;
         this.tables = tables;
+        ongoingOrders = new OngoingOrdersModel();
     }
 
     @Override
@@ -42,8 +43,8 @@ MenuModelOperations{
 
 
     @Override
-    public void addToOngoingOrders(OngoingOrderPair order) {
-        ongoingOrders.addToOngoingOrders(order);
+    public void addToOngoingOrders(int tableId, ArrayList<MenuItem> items) {
+        ongoingOrders.addToOngoingOrders(tableId, items);
     }
 
     @Override
@@ -55,6 +56,11 @@ MenuModelOperations{
     public Employee getEmployee(int id)
     {
         return employees.getEmployee(id);
+    }
+
+    @Override
+    public HashMap<Integer, Employee> getEmployees() {
+        return employees.getEmployees();
     }
 
     @Override

@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lab.crmanagement.R;
+import com.lab.crmanagement.backend.data.client.ClientModelSingletonService;
 import com.lab.crmanagement.backend.data.menu.MenuItem;
 
 
@@ -17,9 +18,12 @@ import java.util.List;
 
 public class MenuItemsAdapter extends RecyclerView.Adapter<MenuItemsAdapter.MenuItemHolder> {
     private List<MenuItem> items;
+    private MenuItemsListener listener;
 
-    public MenuItemsAdapter(List<MenuItem> items) {
+    public MenuItemsAdapter(List<MenuItem> items, MenuItemsListener listener)
+    {
         this.items = items;
+        this.listener = listener;
     }
 
     @NonNull
@@ -34,6 +38,25 @@ public class MenuItemsAdapter extends RecyclerView.Adapter<MenuItemsAdapter.Menu
         MenuItem item = items.get(position);
         holder.itemName.setText(item.getName());
         holder.price.setText(item.getPrice() + "");
+        holder.setItem(item);
+        holder.addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.amount.setText(Integer.parseInt(holder.amount.getText().toString()) + 1 + "");
+                listener.addItemToTheCart(item);
+            }
+        });
+        holder.minusButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int currentAmount = Integer.parseInt(holder.amount.getText().toString());
+                if (currentAmount > 0)
+                {
+                    holder.amount.setText((currentAmount - 1) + "");
+                    listener.deleteItemFromCart(holder.item);
+                }
+            }
+        });
     }
 
     @Override
@@ -42,6 +65,7 @@ public class MenuItemsAdapter extends RecyclerView.Adapter<MenuItemsAdapter.Menu
     }
 
     public static class MenuItemHolder extends RecyclerView.ViewHolder{
+        private MenuItem item;
         private TextView itemName;
         private TextView price;
         private Button addButton;
@@ -75,5 +99,20 @@ public class MenuItemsAdapter extends RecyclerView.Adapter<MenuItemsAdapter.Menu
         public TextView getAmount() {
             return amount;
         }
+
+        public MenuItem getItem() {
+            return item;
+        }
+
+        public void setItem(MenuItem item) {
+            this.item = item;
+        }
+    }
+
+
+    public interface MenuItemsListener
+    {
+        void addItemToTheCart(MenuItem item);
+        void deleteItemFromCart(MenuItem item);
     }
 }

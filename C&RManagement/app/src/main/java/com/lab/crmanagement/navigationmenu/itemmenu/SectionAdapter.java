@@ -39,7 +39,7 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.SectionH
             public void onClick(View v) {
                 if (listener !=null)
                 {
-                    listener.getMenuItems(sectionNames.get(position));
+                    listener.getMenuItems(holder.getSectionButton().getText().toString());
                 }
             }
         });

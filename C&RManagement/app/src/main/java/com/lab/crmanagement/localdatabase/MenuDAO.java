@@ -9,7 +9,7 @@ import java.util.List;
 
 @Dao
 public interface MenuDAO {
-    @Query("select * from menu")
+    @Query("select * from Menu")
     List<Menu> getAllItems();
 
     @Insert

@@ -10,7 +10,7 @@ import java.util.List;
 
 @Dao
 public interface EmployeeDAO {
-    @Query("SELECT * FROM employee")
+    @Query("SELECT * FROM Employee")
     List<Employee> getAll();
 
     @Update
@@ -22,6 +22,6 @@ public interface EmployeeDAO {
     @Insert
     void insert(Employee employee);
 
-    @Query("SELECT * FROM employee WHERE id = :id")
+    @Query("SELECT * FROM Employee WHERE id = :id")
     Employee findById(int id);
 }

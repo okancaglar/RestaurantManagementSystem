@@ -7,23 +7,23 @@ import java.util.ArrayList;
 
 public class OngoingOrdersModel implements OngoingOrdersModelOperations {
     //Object[] -> {table_id, MenuItem}
-    private ArrayList<Object[]> orders;
+    private ArrayList<Object[]> orders = new ArrayList<>();
 
     @Override
-    public void addToOngoingOrders(final OngoingOrderPair order) {
-        if (order.items() != null)
+    public void addToOngoingOrders(int tableId, ArrayList<MenuItem> items) {
+        if (items != null)
         {
-            for (MenuItem item: order.items())
+            for(MenuItem item: items)
             {
-                orders.add(new Object[]{order.tableID(), item});
+                orders.add(new Object[]{tableId, item});
             }
         }
     }
 
     @Override
-    public void deleteFromOngoingOrders(OngoingOrderPair items) {
+    public void deleteFromOngoingOrders(OngoingOrderPair item) {
         for (int i = 0; i < orders.size(); i++) {
-            if (items.tableID() == (int)(orders.get(i)[0]))
+            if (item.tableID() == (int)(orders.get(i)[0]))
             {
                 orders.remove(i);
             }

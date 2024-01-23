@@ -1,6 +1,8 @@
 package com.lab.crmanagement.backend.server;
 
 
+import android.util.Log;
+
 import com.lab.crmanagement.backend.data.AppTransferStreamData;
 import com.lab.crmanagement.backend.data.DataTypes;
 import com.lab.crmanagement.backend.data.Employee.*;
@@ -46,6 +48,7 @@ public class Server{
     {
         try {
             server = new ServerSocket(port, 20, InetAddress.getByName("localhost"));
+            Log.d("SERVER", server.isClosed() + "");
             while (!server.isClosed())
             {
                 try {
@@ -142,7 +145,16 @@ public class Server{
         return newData;
     }
 
-    private void broadcast(AppTransferStreamData data) {}
+    private void broadcast(AppTransferStreamData data)
+    {
+        if(data != null)
+        {
+            for(Object[] client: clientsConnectionData)
+            {
+                unicastTransfer(data, client);
+            }
+        }
+    }
     private void unicastTransfer(AppTransferStreamData data, Object[] clientData){
         try {
             clientDataManipulationLock.lock();
@@ -159,9 +171,10 @@ public class Server{
     {
         if (order != null)
         {
+            Log.d("Server; New Order Came", "Table Id: " + order.tableID());
             orderLock.lock();
             database.addOrder(order.tableID(), order.newOrder());
-            database.addToOngoingOrders(new OngoingOrderPair(order.tableID(), order.newOrder()));
+            database.addToOngoingOrders(order.tableID(), order.newOrder());
             orderLock.unlock();
             broadcast(new AppTransferStreamData(DataTypes.TableOrderTransferStreamData, order));
         }
@@ -199,7 +212,6 @@ public class Server{
                 closeConnectionWithClient(clientData);
                 return;
             }
-            sendInitialData();
 
             while (!clientSocket.isClosed())
             {
@@ -256,16 +268,18 @@ public class Server{
                             AppTransferStreamData result = new AppTransferStreamData(DataTypes.EmployeeSessionTransferStreamData,
                                     new EmployeeSessionTransferStreamData(employeeData.id(), employeeData.password(), RequestCode.SUCCESS_ADMIN));
                             unicastTransfer(result, clientData);
+
+                            //send initial data to admin
+                            sendAdminInitialData(employeeData.id());
                         }else
                         {
                             AppTransferStreamData result = new AppTransferStreamData(DataTypes.EmployeeSessionTransferStreamData,
                                     new EmployeeSessionTransferStreamData(employeeData.id(), employeeData.password(), RequestCode.SUCCESS_EMPLOYEE));
                             unicastTransfer(result, clientData);
+
+                            //send initial data to employee
+                            sendEmployeeInitialData(employeeData.id());
                         }
-                        //send employee data to employee
-                        AppTransferStreamData employee = new AppTransferStreamData(DataTypes.EmployeeTransferStreamData,
-                                new EmployeeTransferStreamData(getEmployee(employeeData.id())));
-                        unicastTransfer(employee, clientData);
                         return true;
                     }else
                     {
@@ -319,9 +333,21 @@ public class Server{
         * */
         private void ongoingOrderHandler(OngoingOrderTransferStreamData order) {Server.this.ongoingOrderHandler(order);}
         private void closeConnection(){Server.this.closeConnectionWithClient(new Object[]{clientSocket, inputStream, outputStream});}
-        private void sendInitialData()
+
+
+        /* order of the data to send:
+        * 1-employee data
+        * 2-tables data
+        * 3-menu data
+        * */
+        private void sendEmployeeInitialData(int employeeID)
         {
             //todo do send initial data for admin that it can have all the database data
+
+            AppTransferStreamData employee = new AppTransferStreamData(DataTypes.EmployeeTransferStreamData,
+                    new EmployeeTransferStreamData(database.getEmployee(employeeID)));
+            unicastTransfer(employee, clientData);
+
 
             AppTransferStreamData tables = new AppTransferStreamData(DataTypes.TableTransferStreamData,
                     new TableTransferStreamData(getTableDataFromDatabase()));
@@ -331,6 +357,33 @@ public class Server{
                     new MenuItemTransferStreamData(getMenu()));
             unicastTransfer(menu, clientData);
         }
+
+
+        /* Order of the data to send
+        * 1-Employee data
+        * 2-Employees data
+        * 3-Tables data
+        * 4-Menu data
+        * */
+        private void sendAdminInitialData(int employeeID)
+        {
+            AppTransferStreamData employee = new AppTransferStreamData(DataTypes.EmployeeTransferStreamData,
+                    new EmployeeTransferStreamData(database.getEmployee(employeeID)));
+            unicastTransfer(employee, clientData);
+
+            AppTransferStreamData employees = new AppTransferStreamData(DataTypes.EmployeesTransferStreamData,
+                    new EmployeesTransferStreamData(database.getEmployees()));
+            unicastTransfer(employees, clientData);
+
+            AppTransferStreamData tables = new AppTransferStreamData(DataTypes.TableTransferStreamData,
+                    new TableTransferStreamData(getTableDataFromDatabase()));
+            unicastTransfer(tables, clientData);
+
+            AppTransferStreamData menu = new AppTransferStreamData(DataTypes.MenuItemsTransferStreamData,
+                    new MenuItemTransferStreamData(getMenu()));
+            unicastTransfer(menu, clientData);
+        }
+
 
         private void updateEmployeeDatabase(AdminEmployeeTransferStreamData employee)
         {

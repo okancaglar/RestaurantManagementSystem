@@ -28,7 +28,7 @@
         android:id="@+id/sectionRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"/>
+        android:orientation="horizontal" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/itemsRecyclerView"
@@ -37,12 +37,12 @@
         android:layout_weight="1" />
 
     <Button
-        android:id="@+id/addordershoppingcartbutton"
+        android:id="@+id/confirmButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:padding="16dp"
-        android:text="Go to Shopping Cart"
+        android:text="Confirm the Basket"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         app:cornerRadius="0dp" />

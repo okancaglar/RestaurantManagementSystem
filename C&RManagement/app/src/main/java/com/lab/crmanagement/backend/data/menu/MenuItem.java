@@ -10,7 +10,7 @@ public class MenuItem implements Serializable {
     private String ingredients;
 
 
-    public MenuItem(String menuSection, int id, String name, int price, String ingredients) {
+    public MenuItem(String menuSection, int id, String name, double price, String ingredients) {
         this.menuSection = menuSection;
         this.id = id;
         this.name = name;

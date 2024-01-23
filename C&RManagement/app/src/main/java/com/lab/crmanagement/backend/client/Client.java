@@ -1,12 +1,18 @@
 package com.lab.crmanagement.backend.client;
 
+import android.util.Log;
+
 import com.lab.crmanagement.backend.data.AppTransferStreamData;
 import com.lab.crmanagement.backend.data.DataTypes;
 import com.lab.crmanagement.backend.data.Employee.*;
+import com.lab.crmanagement.backend.data.client.ClientModel;
+import com.lab.crmanagement.backend.data.client.ClientModelSingletonService;
 import com.lab.crmanagement.backend.data.menu.*;
 import com.lab.crmanagement.backend.data.ongoingorders.*;
 import com.lab.crmanagement.backend.data.table.*;
-
+import com.lab.crmanagement.login.LoginClientListener;
+import com.lab.crmanagement.navigationmenu.ongoingorders.OngoingOrdersListener;
+import com.lab.crmanagement.navigationmenu.tables.TableListener;
 
 
 import java.io.IOException;
@@ -21,12 +27,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
-public class Client {
-    private Employee employeeInformation;
-    private HashMap<Integer, Table> tableData;
-    private HashMap<String, MenuSection> menu;
-    /* Structure of Object[] is {tableId, MenuItem} */
-    private ArrayList<Object[]> ongoingOrders;
+public class Client  {
+
+    private ClientModel model = ClientModelSingletonService.getClientModelInstance();
     private Socket clientSocket;
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
@@ -36,6 +39,10 @@ public class Client {
     private final Lock tableDataLock = new ReentrantLock();
     private final Lock menuLock = new ReentrantLock();
     private final Lock ongoingOrderLock = new ReentrantLock();
+
+    private LoginClientListener loginClientListener;
+    private TableListener tableListener;
+    private OngoingOrdersListener ongoingOrdersListener;
 
     private boolean setUpConnection()
     {
@@ -52,9 +59,21 @@ public class Client {
         return false;
     }
 
+    public void setOngoingOrdersListener(OngoingOrdersListener ongoingOrdersListener) {
+        this.ongoingOrdersListener = ongoingOrdersListener;
+    }
+
+    public void setLoginClientListener(LoginClientListener listener)
+    {
+        loginClientListener = listener;
+    }
+
+    public void setTableListener(TableListener tableListener) {
+        this.tableListener = tableListener;
+    }
 
     /* after this method to build ui use employee information to determine is employee or admin then invoke the proper user interface*/
-    public boolean loginSection(int id, String password)
+    public boolean login(int id, String password)
     {
         boolean loginStatus = false;
 
@@ -86,8 +105,8 @@ public class Client {
             logger.warning("too many logging attempt");
         }
 
-        //if (loginStatus)
-            //startClientHandler();
+        if (loginStatus)
+            startClientHandler();
 
         return loginStatus;
     }
@@ -104,11 +123,26 @@ public class Client {
             logger.finest("cannot connect to server. Critical program error at: " + ZonedDateTime.now());
             return;
         }
-        //loginSection();
     }
 
     private void getAdminInitialData() {
-        //todo build admin initial data logic
+        int count = 4;
+        while (count-- > 0) {
+            AppTransferStreamData input = readDataFromServer();
+            if (input.getType() == DataTypes.EmployeeTransferStreamData) {
+                model.setEmployeeInformation((Employee)((EmployeeTransferStreamData)input.getData()).employee());
+            }else if(input.getType() == DataTypes.EmployeesTransferStreamData)
+            {
+                model.setEmployees(((EmployeesTransferStreamData) input.getData()).employees());
+            } else if (input.getType() == DataTypes.TableTransferStreamData) {
+                model.setTableData((HashMap<Integer, Table>) ((TableTransferStreamData)input.getData()).tables());
+            } else if (input.getType() == DataTypes.MenuItemsTransferStreamData) {
+                model.setMenu((HashMap<String, MenuSection>) ((MenuItemTransferStreamData)input.getData()).menu());
+            } else {
+                closeConnection();
+                logger.finest("initial data transfer is not working! critical logic error at: " + ZonedDateTime.now());
+            }
+        }
     }
 
 
@@ -140,11 +174,11 @@ public class Client {
         while (count-- > 0) {
             AppTransferStreamData input = readDataFromServer();
             if (input.getType() == DataTypes.EmployeeTransferStreamData) {
-                employeeInformation = (Employee) ((EmployeeTransferStreamData)input.getData()).employee();
+                 model.setEmployeeInformation((Employee)((EmployeeTransferStreamData)input.getData()).employee());
             } else if (input.getType() == DataTypes.TableTransferStreamData) {
-                tableData = (HashMap<Integer, Table>) ((TableTransferStreamData)input.getData()).tables();
+                model.setTableData((HashMap<Integer, Table>) ((TableTransferStreamData)input.getData()).tables());
             } else if (input.getType() == DataTypes.MenuItemsTransferStreamData) {
-                menu = (HashMap<String, MenuSection>) ((MenuItemTransferStreamData)input.getData()).menu();
+                model.setMenu((HashMap<String, MenuSection>) ((MenuItemTransferStreamData)input.getData()).menu());
             } else {
                 closeConnection();
                 logger.finest("initial data transfer is not working! critical logic error at: " + ZonedDateTime.now());
@@ -154,28 +188,28 @@ public class Client {
     /* DATA MANIPULATION METHODS */
     private void addOrderToTable(TableOrderTransferStreamData data)
     {
+        Log.d("NEW ORDER COMING", data.tableID() + "");
         //tableDataLock.lock();
-        tableData.get(data.tableID()).addItems(data.newOrder());
+        model.addOrderToTable(data);
         //tableDataLock.unlock();
         ongoingOrderLock.lock();
-        for (int i = 0; i < data.newOrder().size(); i++) {
-            ongoingOrders.add(new Object[]{data.tableID(), data.newOrder().get(i)});
-        }
+        model.addOrderToOngoingOrders(data);
         ongoingOrderLock.unlock();
-    }
-    private void deleteFromOngoingOrder(int tableID, ArrayList<MenuItem> items)
-    {
-        ongoingOrderLock.lock();
-        for (int i = 0; i < items.size(); i++) {
-            for (int j = 0; j < ongoingOrders.size(); j++) {
-                if ((int)(ongoingOrders.get(j)[0]) == tableID &&
-                        ((MenuItem)(ongoingOrders.get(j)[1])).getId() == items.get(i).getId())
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (Object[] order: ClientModelSingletonService.getClientModelInstance().getOngoingOrders())
                 {
-                    ongoingOrders.remove(j);
-                    break;
+                    Log.d("Ongoing Orders", ((MenuItem)order[1]).getName());
                 }
             }
-        }
+        }).start();
+        tableListener.updateData();
+    }
+    private void deleteFromOngoingOrder(int tableID, MenuItem item)
+    {
+        ongoingOrderLock.lock();
+        model.deleteFromOngoingOrder(tableID, item);
         ongoingOrderLock.unlock();
     }
     /* END */
@@ -220,7 +254,8 @@ public class Client {
         //todo invoke close the android app
     }
 
-     private class ClientHandler implements Runnable{
+
+    private class ClientHandler implements Runnable{
         @Override
         public void run()
         {
@@ -234,6 +269,8 @@ public class Client {
                }
                if (newData.getType() == DataTypes.TableOrderTransferStreamData)
                {
+                   Log.d("New order in Handler", "Table ID: " +
+                           ((TableOrderTransferStreamData) newData.getData()).tableID());
                    tableOrderHandler((TableOrderTransferStreamData) newData.getData());
                } else if (newData.getType() == DataTypes.OngoingOrderTransferStreamData) {
                    ongoingOrderHandler((OngoingOrderTransferStreamData) newData.getData());
@@ -257,13 +294,15 @@ public class Client {
             if (data == null)
                 return;
             addOrderToTable(data);
+
             //update ui
          }
          private void ongoingOrderHandler(OngoingOrderTransferStreamData data)
          {
             if (data != null && data.status() == OrderStatus.FINISHED)
             {
-                deleteFromOngoingOrder(data.order().tableID(), data.order().items());
+                deleteFromOngoingOrder(data.order().tableID(), data.order().item());
+                ongoingOrdersListener.updateData();
             }
          }
     }

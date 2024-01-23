@@ -17,6 +17,11 @@ public class EmployeeModel implements EmployeeModelOperations {
     {return employees.get(id);}
 
     @Override
+    public HashMap<Integer, Employee> getEmployees() {
+        return employees;
+    }
+
+    @Override
     public EmployeeLoginPair login(int id, String password)
     {
         if (password == null) return null;

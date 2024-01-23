@@ -16,7 +16,7 @@ public class Table implements Serializable {
     //table attributes
     private int id;
     private int status;
-    private int totalCost;
+    private double totalCost;
     private ArrayList<MenuItem> orders;
 
     public Table(int id) {
@@ -39,11 +39,26 @@ public class Table implements Serializable {
         return id;
     }
 
-    public int getStatus() {
-        return status;
+    public String getStatus() {
+        switch (status)
+        {
+            case WAITING_ORDER ->
+            {
+                return "Waiting Order";
+            }
+            case OCCUPIED ->
+            {
+                return "Occupied";
+            }
+            default ->
+            {
+                return "Empty";
+            }
+        }
+
     }
 
-    public int getTotalCost() {
+    public double getTotalCost() {
         return totalCost;
     }
 
