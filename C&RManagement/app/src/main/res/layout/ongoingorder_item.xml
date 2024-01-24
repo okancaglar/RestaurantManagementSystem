@@ -24,9 +24,10 @@
         android:id="@+id/done"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Done"
         android:layout_weight="1"
-        />
+        android:backgroundTint="@color/orange"
+        android:text="Done"
+        app:cornerRadius="0dp" />
 
 
 

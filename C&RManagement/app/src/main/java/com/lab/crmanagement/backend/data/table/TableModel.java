@@ -25,4 +25,9 @@ public class TableModel implements TableModelOperations {
     public HashMap<Integer, Table> getTables() {
         return tables;
     }
+
+    public void resetTable(int tableId)
+    {
+        tables.get(tableId).reset();
+    }
 }

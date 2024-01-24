@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import com.lab.crmanagement.backend.data.client.ClientModelSingletonService;
 import com.lab.crmanagement.backend.data.menu.MenuItem;
 import com.lab.crmanagement.backend.data.table.Table;
 import com.lab.crmanagement.navigationmenu.itemmenu.MenuFragment;
+import android.view.View.OnClickListener;
 
 import java.util.ArrayList;
 
@@ -91,6 +93,7 @@ public class TableFragment extends Fragment implements TableView{
         orders = view.findViewById(R.id.orders);
         settleTheBill = view.findViewById(R.id.settle);
 
+
         orders.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,9 +130,19 @@ public class TableFragment extends Fragment implements TableView{
         settleTheBill.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ClientSingletonService.getClientInstance().sendTableSettleData(tableId);
 
+                TablesFragment tablesFragment = TablesFragment.newInstance(
+                        ClientModelSingletonService.getClientModelInstance().getTablesAsList());
+
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .setReorderingAllowed(true)
+                        .replace(R.id.navigatorFragment, tablesFragment, null)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
+
     }
 
     @Override

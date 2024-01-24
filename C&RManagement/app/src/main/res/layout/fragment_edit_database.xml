@@ -1,14 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".navigationmenu.editdatabase.EditDatabaseFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".navigationmenu.editdatabase.EditDatabaseFragment"
+    android:id="@+id/edit_database_cons_layout"
+    android:orientation="vertical"
+    >
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <Button
+        android:id="@+id/editMenuButton"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="Edit Menu"
+        />
 
-</FrameLayout>
+    <Button
+        android:id="@+id/editEmployeeButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="Edit Employee"
+
+        />
+
+    <Button
+        android:id="@+id/editTableButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="Edit Table"
+        />
+
+
+</LinearLayout>

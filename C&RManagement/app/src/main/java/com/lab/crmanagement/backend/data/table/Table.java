@@ -57,6 +57,10 @@ public class Table implements Serializable {
         }
 
     }
+    public void setStatus(int status)
+    {
+        this.status = status;
+    }
 
     public double getTotalCost() {
         return totalCost;
@@ -64,6 +68,13 @@ public class Table implements Serializable {
 
     public ArrayList<MenuItem> getOrders() {
         return orders;
+    }
+
+    public void reset()
+    {
+        totalCost = 0;
+        status = EMPTY;
+        orders.clear();
     }
 
     //todo getters, setters implementation

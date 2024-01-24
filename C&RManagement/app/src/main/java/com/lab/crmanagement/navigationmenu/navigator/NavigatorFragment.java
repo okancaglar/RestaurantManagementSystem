@@ -14,6 +14,7 @@ import android.widget.Button;
 import com.lab.crmanagement.R;
 import com.lab.crmanagement.backend.data.client.ClientModel;
 import com.lab.crmanagement.backend.data.client.ClientModelSingletonService;
+import com.lab.crmanagement.navigationmenu.editdatabase.EditDatabaseFragment;
 import com.lab.crmanagement.navigationmenu.ongoingorders.OngoingOrdersFragment;
 import com.lab.crmanagement.navigationmenu.tables.TablesFragment;
 
@@ -61,6 +62,7 @@ public class NavigatorFragment extends Fragment {
 
         Button tablesButton = view.findViewById(R.id.tablesButton);
         Button ongoingOrders = view.findViewById(R.id.ongoingOrdersButton);
+        Button editDatabase = view.findViewById(R.id.editButton);
 
         tablesButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,6 +85,17 @@ public class NavigatorFragment extends Fragment {
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .setReorderingAllowed(true)
                         .replace(R.id.navigatorFragment, OngoingOrdersFragment.class, null)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        editDatabase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .setReorderingAllowed(true)
+                        .replace(R.id.navigatorFragment, EditDatabaseFragment.class, null)
                         .addToBackStack(null)
                         .commit();
             }

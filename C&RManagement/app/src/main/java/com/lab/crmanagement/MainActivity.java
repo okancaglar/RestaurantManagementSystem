@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 DBModel dbModel = CreateDBModel.createDBModelFromDatabase(database);
-                server = ServerSingletonService.getServerInstance(4444, dbModel);
+                server = ServerSingletonService.getServerInstance(4444, dbModel, getApplicationContext());
                 Logger.getLogger(MainActivity.class.getName()).finest(server + "");
                 new Thread(new Runnable() {
                     @Override

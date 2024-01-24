@@ -1,6 +1,7 @@
 package com.lab.crmanagement.backend.server;
 
 
+import android.content.Context;
 import android.util.Log;
 
 import com.lab.crmanagement.backend.data.AppTransferStreamData;
@@ -12,6 +13,8 @@ import com.lab.crmanagement.backend.data.database.*;
 import com.lab.crmanagement.backend.data.menu.*;
 import com.lab.crmanagement.backend.data.ongoingorders.*;
 import com.lab.crmanagement.backend.data.table.*;
+import com.lab.crmanagement.localdatabase.AppDatabase;
+import com.lab.crmanagement.localdatabase.TableDAO;
 
 
 import java.io.*;
@@ -37,11 +40,13 @@ public class Server{
     private DBModel database;
     private final Lock clientDataManipulationLock  = new ReentrantLock();
     private final Lock orderLock = new ReentrantLock();
+    private Context context;
 
 
-    public Server(final int port, final DBModel database) {
+    public Server(final int port, final DBModel database, Context context) {
         this.port = port;
         this.database = database;
+        this.context = context;
     }
 
     public void startServer()
@@ -216,6 +221,7 @@ public class Server{
             while (!clientSocket.isClosed())
             {
                     AppTransferStreamData newDataFromClient = readTransferStreamData();
+                    Log.d("Data Arrived", newDataFromClient.getType().name());
                     if (newDataFromClient != null)
                     {
                         if (newDataFromClient.getType() == DataTypes.TableOrderTransferStreamData)
@@ -231,13 +237,37 @@ public class Server{
                             updateMenuItemsDatabase((AdminMenuItemsTransferStreamData) newDataFromClient.getData());
                         } else if (newDataFromClient.getType() == DataTypes.AdminTableTransferStreamData)
                         {
-                            updateTableDatabase(newDataFromClient.getData());
+                            Log.d("Table Insertion", "request in server");
+                            adminAddTableHandler((Table)((AdminTableTransferStreamData)newDataFromClient.getData()).table());
+
                         } else if (newDataFromClient.getType() == DataTypes.EmployeeSessionTransferStreamData &&
                                 ((EmployeeSessionTransferStreamData)newDataFromClient.getData()).code() == RequestCode.LOGOUT) {
                             closeSession();
+                        } else if (newDataFromClient.getType() == DataTypes.TableSettleTransferStreamData &&
+                                ((TableSettleTransferStreamData)newDataFromClient.getData()).requestCode() == TableSettleRequestCode.SETTLE) {
+                            Log.d("Incoming Settle request", "table:" +
+                                    ((TableSettleTransferStreamData)newDataFromClient.getData()).table());
+                            handleSettleRequest(((TableSettleTransferStreamData)newDataFromClient.getData()).table());
                         }
                     }
             }
+        }
+
+        private void adminAddTableHandler(Table table)
+        {
+            AppDatabase db = AppDatabase.getDatabaseInstance(context);
+
+            TableDAO tableDAO = db.tableDAO();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    com.lab.crmanagement.localdatabase.Table tableEntity =
+                            new com.lab.crmanagement.localdatabase.Table(table.getId());
+                    tableDAO.insert(tableEntity);
+
+                    Log.d("Table Insertion","Table insertion is succesfull");
+                }
+            }).start();
         }
 
         private void closeSession() {
@@ -388,6 +418,14 @@ public class Server{
         private void updateEmployeeDatabase(AdminEmployeeTransferStreamData employee)
         {
             //todo
+        }
+
+        private void handleSettleRequest(int tableId)
+        {
+            database.resetTable(tableId);
+            Log.d("Settle request success sending to server", "table:" + tableId);
+            unicastTransfer(new AppTransferStreamData(DataTypes.TableSettleTransferStreamData,
+                    new TableSettleTransferStreamData(tableId, TableSettleRequestCode.SUCCESS)), clientData);
         }
     }
 

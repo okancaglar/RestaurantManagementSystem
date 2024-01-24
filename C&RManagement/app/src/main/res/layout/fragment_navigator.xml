@@ -11,53 +11,46 @@
         android:id="@+id/ongoingOrdersButton"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_margin="20dp"
         android:text="Ongoing Orders"
         android:textSize="18sp"
-        app:layout_constraintEnd_toStartOf="@+id/tablesButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/settingsButton"
+        android:backgroundTint="@color/orange"
+        app:cornerRadius="0dp"
+        app:layout_constraintBottom_toTopOf="@id/editButton"
         app:layout_constraintDimensionRatio="1:1"
-        android:layout_margin="20dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tablesButton" />
 
     <Button
         android:id="@+id/tablesButton"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_margin="20dp"
+        android:backgroundTint="@color/orange"
         android:text="Tables"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/ongoingOrdersButton"
-        app:layout_constraintBottom_toTopOf="@id/editButton"
-        app:layout_constraintTop_toTopOf="parent"
+        app:cornerRadius="0dp"
+        app:layout_constraintBottom_toTopOf="@id/ongoingOrdersButton"
         app:layout_constraintDimensionRatio="1:1"
-        android:layout_margin="20dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/editButton"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_margin="20dp"
         android:text="Edit Database"
         android:textSize="18sp"
+        app:cornerRadius="0dp"
+        android:backgroundTint="@color/orange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/settingsButton"
-        app:layout_constraintTop_toBottomOf="@id/tablesButton"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="1:1"
-        android:layout_margin="20dp"/>
-
-    <Button
-        android:id="@+id/settingsButton"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:text="Settings"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintEnd_toStartOf="@id/editButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ongoingOrdersButton"
-        android:layout_margin="20dp" />
+        app:layout_constraintTop_toBottomOf="@id/ongoingOrdersButton" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

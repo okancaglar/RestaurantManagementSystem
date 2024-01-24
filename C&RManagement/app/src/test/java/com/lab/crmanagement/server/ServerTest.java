@@ -59,7 +59,7 @@ class ServerTest {
         TableModel tbModel = new TableModel(tableHashMap);
 
         DBModel database = new DBModel(new EmployeeModel(employeeHashMap), menuModel, tbModel);
-        server = new Server(8089, database);
+        server = new Server(8089, database, null);
         serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -133,7 +133,7 @@ class ServerTest {
 
     @Test
     void testReadInput() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException {
-        Server server = new Server(0, null);
+        Server server = new Server(0, null, null);
         Method method = server.getClass().getDeclaredMethod("readData", ObjectInputStream.class);
         method.setAccessible(true);
 
@@ -159,7 +159,7 @@ class ServerTest {
     @Test
     void closeClientConnectionTest() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InterruptedException {
 
-        Server server = new Server(22222, null);
+        Server server = new Server(22222, null, null);
         Method method = server.getClass().getDeclaredMethod("closeConnectionWithClient", Object[].class, ArrayList.class);
         method.setAccessible(true);
 

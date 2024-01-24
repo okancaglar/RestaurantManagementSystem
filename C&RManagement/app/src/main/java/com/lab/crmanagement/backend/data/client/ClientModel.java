@@ -118,4 +118,29 @@ public class ClientModel {
         }
         return menuSectionsList;
     }
+
+    public void updateTableStatus(int tableId)
+    {
+        boolean flag=true;
+        for(Object[] order: ongoingOrders)
+        {
+            if ((int)order[0] == tableId)
+            {
+                flag = false;
+            }
+        }
+        if (flag)
+        {
+            Table table = getTable(tableId);
+            if (table.getOrders().size() != 0)
+            {
+                table.setStatus(Table.OCCUPIED);
+            }
+        }
+    }
+
+    public void resetTable(int tableId)
+    {
+        tableData.get(tableId).reset();
+    }
 }

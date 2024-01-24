@@ -86,5 +86,6 @@ public class OngoingOrdersFragment extends Fragment implements OngoingOrdersView
                 );
             }
         });
+
     }
 }

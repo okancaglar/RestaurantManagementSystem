@@ -5,6 +5,8 @@ import android.util.Log;
 import com.lab.crmanagement.backend.data.AppTransferStreamData;
 import com.lab.crmanagement.backend.data.DataTypes;
 import com.lab.crmanagement.backend.data.Employee.*;
+import com.lab.crmanagement.backend.data.admin.AdminRequestCode;
+import com.lab.crmanagement.backend.data.admin.AdminTableTransferStreamData;
 import com.lab.crmanagement.backend.data.client.ClientModel;
 import com.lab.crmanagement.backend.data.client.ClientModelSingletonService;
 import com.lab.crmanagement.backend.data.menu.*;
@@ -151,6 +153,7 @@ public class Client  {
         try {
             outputStream.writeObject(data);
             outputStream.flush();
+            Log.d("DATA",  "Data is sent to server");
         } catch (IOException e) {
             closeConnection();
             logger.finest("IO exception when sending the data to server" + ZonedDateTime.now() + " Error: " + e.getMessage());
@@ -230,6 +233,23 @@ public class Client  {
         sendDataToServer(data);
     }
 
+    public void sendTableSettleData(int tableId)
+    {
+        Log.d("Settle reques: ", "table: " + tableId);
+        AppTransferStreamData data = new AppTransferStreamData(DataTypes.TableSettleTransferStreamData,
+                new TableSettleTransferStreamData(tableId, TableSettleRequestCode.SETTLE));
+        sendDataToServer(data);
+    }
+
+    public void sendAdminTableData(Table table)
+    {
+        Log.d("Admin Table Data", "sendAdminTableData");
+        AppTransferStreamData data = new AppTransferStreamData(DataTypes.AdminTableTransferStreamData,
+                new AdminTableTransferStreamData(table.getId(), table, AdminRequestCode.ADD));
+
+        sendDataToServer(data);
+    }
+
     /* END */
 
     /* ADMIN METHODS THAT MANIPULATES DATABASE */
@@ -274,6 +294,9 @@ public class Client  {
                    tableOrderHandler((TableOrderTransferStreamData) newData.getData());
                } else if (newData.getType() == DataTypes.OngoingOrderTransferStreamData) {
                    ongoingOrderHandler((OngoingOrderTransferStreamData) newData.getData());
+               } else if (newData.getType() == DataTypes.TableSettleTransferStreamData)
+               {
+                    tableSettleHandler(((TableSettleTransferStreamData)newData.getData()).table());
                }
            }
         }
@@ -302,8 +325,15 @@ public class Client  {
             if (data != null && data.status() == OrderStatus.FINISHED)
             {
                 deleteFromOngoingOrder(data.order().tableID(), data.order().item());
+                ClientModelSingletonService.getClientModelInstance().updateTableStatus(data.order().tableID());
                 ongoingOrdersListener.updateData();
+
             }
+         }
+
+         private void tableSettleHandler(int tableId)
+         {
+             model.resetTable(tableId);
          }
     }
 }

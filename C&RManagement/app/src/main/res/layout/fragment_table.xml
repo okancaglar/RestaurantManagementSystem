@@ -6,31 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".navigationmenu.tables.TableFragment">
 
-    <FrameLayout
-        android:id="@+id/frame_customertable"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-    </FrameLayout>
-
     <TextView
         android:id="@+id/totalCostTxt"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Total Cost: "
-        app:layout_constraintBottom_toTopOf="@id/table"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/frame_customertable"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginStart="30dp"
+        app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/back"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginTop="30dp"
         android:textAlignment="center"
         android:textSize="30sp" />
+
 
     <GridLayout
         android:id="@+id/table"
@@ -94,6 +84,7 @@
             android:text="Add Order"
             android:clickable="true"/>
 
+
     </GridLayout>
 
     <Button
@@ -102,16 +93,16 @@
         android:layout_height="wrap_content"
         android:maxHeight="60dp"
         android:text="Settle The Bill"
+        android:backgroundTint="@color/orange"
         android:textAlignment="center"
         android:textSize="30sp"
         app:cornerRadius="0dp"
-        android:layout_marginBottom="30dp"
-        android:layout_marginEnd="30dp"
         android:layout_marginStart="30dp"
-        android:background="@drawable/back"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/table" />
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

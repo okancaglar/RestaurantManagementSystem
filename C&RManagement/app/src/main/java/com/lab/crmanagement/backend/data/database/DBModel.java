@@ -68,4 +68,9 @@ MenuModelOperations{
     {
         return menu.getMenu();
     }
+
+    public void resetTable(int tableId)
+    {
+        tables.resetTable(tableId);
+    }
 }
